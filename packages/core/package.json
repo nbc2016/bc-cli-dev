@@ -1,0 +1,36 @@
+{
+  "name": "@bc-cli/core",
+  "version": "1.0.1",
+  "description": "> TODO: description",
+  "author": "niubingchuan <niubingchuan@enn.cn>",
+  "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/packages/core#readme",
+  "license": "ISC",
+  "bin": {
+    "bc-cli": "bin/index.js"
+  },
+  "main": "bin/index.js",
+  "directories": {
+    "lib": "core",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nbc2016/bc-cli-dev.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/nbc2016/bc-cli-dev/issues"
+  },
+  "dependencies": {
+    "@bc-cli/utils": "^1.0.1",
+    "bc-cli-l": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
