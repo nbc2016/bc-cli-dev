@@ -27,13 +27,12 @@
     "url": "https://github.com/nbc2016/bc-cli-dev/issues"
   },
   "dependencies": {
-    "@bc-cli/utils": "^1.0.2"
+    "@bc-cli/utils": "^1.0.2",
+    "import-local": "^3.1.0"
+
   },
   "publishConfig": {
     "access": "public"
   },
   "gitHead": "a890f685c7dce9404fa77492c176675a011372e0",
-  "devDependencies": {
-    "import-local": "^3.1.0"
-  }
 }
