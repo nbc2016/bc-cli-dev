@@ -6,5 +6,5 @@ console.log(__filename)
 if (importLocal(__filename)) {
     console.log('run local');
 }else {
-    require(".")(process.argv.slice(2));
+    require(".");
 }
