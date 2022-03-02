@@ -2,9 +2,9 @@
 'use strict';
 
 const importLocal = require("import-local")
-console.log(__filename);
+console.log(__filename)
 if (importLocal(__filename)) {
     console.log('run local');
 }else {
-    require('.')
+    require(".")(process.argv.slice(2));
 }
