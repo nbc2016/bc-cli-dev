@@ -6,9 +6,9 @@
   "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/packages/core#readme",
   "license": "ISC",
   "bin": {
-    "bc-cli": "bin/cli.js"
+    "bc-cli": "lib/cli.js"
   },
-  "main": "bin/cli.js",
+  "main": "lib/cli.js",
   "directories": {
     "lib": "core",
     "test": "__tests__"
