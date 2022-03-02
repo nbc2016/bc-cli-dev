@@ -6,9 +6,9 @@
   "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/packages/core#readme",
   "license": "ISC",
   "bin": {
-    "bc-cli": "bin/index.js"
+    "bc-cli": "bin/cli.js"
   },
-  "main": "bin/index.js",
+  "main": "bin/cli.js",
   "directories": {
     "lib": "core",
     "test": "__tests__"
@@ -27,11 +27,13 @@
     "url": "https://github.com/nbc2016/bc-cli-dev/issues"
   },
   "dependencies": {
-    "@bc-cli/utils": "^1.0.1",
-    "bc-cli-l": "^1.0.0"
+    "@bc-cli/utils": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "a890f685c7dce9404fa77492c176675a011372e0"
+  "gitHead": "a890f685c7dce9404fa77492c176675a011372e0",
+  "devDependencies": {
+    "import-local": "^3.1.0"
+  }
 }
