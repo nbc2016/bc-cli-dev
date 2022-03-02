@@ -1,6 +1,6 @@
 {
   "name": "@bc-cli/core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "> TODO: description",
   "author": "niubingchuan <niubingchuan@enn.cn>",
   "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/packages/core#readme",
@@ -27,7 +27,7 @@
     "url": "https://github.com/nbc2016/bc-cli-dev/issues"
   },
   "dependencies": {
-    "@bc-cli/utils": "^1.0.1"
+    "@bc-cli/utils": "^1.0.2"
   },
   "publishConfig": {
     "access": "public"
