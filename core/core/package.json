@@ -27,7 +27,7 @@
     "url": "https://github.com/nbc2016/bc-cli-dev/issues"
   },
   "dependencies": {
-    "@bc-cli/utils": "file:../utils",
+    "@bc-cli/utils": "file:../../utils/utils",
     "import-local": "^3.1.0"
   },
   "publishConfig": {
