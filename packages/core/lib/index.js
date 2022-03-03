@@ -1,2 +1,2 @@
-const add = require("@bc-cli/utils/lib")
-console.log(add(100,200));
+const add = require("@bc-cli/utils")
+console.log(add(100,2000));
