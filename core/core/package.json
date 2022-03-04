@@ -27,8 +27,15 @@
     "url": "https://github.com/nbc2016/bc-cli-dev/issues"
   },
   "dependencies": {
+    "@bc-cli/log": "file:../../utils/log",
     "@bc-cli/utils": "file:../../utils/utils",
-    "import-local": "^3.1.0"
+    "colors": "^1.4.0",
+    "import-local": "^3.1.0",
+    "npmlog": "^6.0.1",
+    "path-exists": "^4.0.0",
+    "root-check": "^1.0.0",
+    "semver": "^7.3.5",
+    "user-home": "^2.0.0"
   },
   "publishConfig": {
     "access": "public"

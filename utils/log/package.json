@@ -1,9 +1,12 @@
 {
-  "name": "@bc-cli/utils",
+  "name": "@bc-cli/log",
   "version": "1.0.6",
-  "description": "> TODO: description",
+  "description": "bc-cli log",
+  "keywords": [
+    "log"
+  ],
   "author": "niubingchuan <niubingchuan@enn.cn>",
-  "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/packages/utils#readme",
+  "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/utils/log#readme",
   "license": "ISC",
   "main": "lib/index.js",
   "directories": {
@@ -23,9 +26,7 @@
   "bugs": {
     "url": "https://github.com/nbc2016/bc-cli-dev/issues"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "gitHead": "a890f685c7dce9404fa77492c176675a011372e0",
-  "dependencies": {}
+  "dependencies": {
+    "npmlog": "^6.0.1"
+  }
 }

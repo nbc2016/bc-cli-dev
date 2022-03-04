@@ -2,8 +2,10 @@
 'use strict';
 
 const importLocal = require("import-local")
+const npmLog = require("npmlog")
+
 if (importLocal(__filename)) {
-    console.log('run local');
+    npmLog.info("cli","run local")
 }else {
-    require(".");
+    require(".")(process.argv.slice(2));
 }
