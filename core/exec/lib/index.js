@@ -27,6 +27,9 @@ async function exec() {
       packageName,
       packageVersion,
     });
+    if (!pkg.exists()) {
+      return
+    }
     const rootFile = pkg.getRootFilePath();
     if (rootFile) {
       require(rootFile)
@@ -40,7 +43,7 @@ async function exec() {
       packageName,
       packageVersion,
     })
-    if (pkg.exists()) {
+    if (await pkg.exists()) {
       pkg.update()
     }else {
       await pkg.install()

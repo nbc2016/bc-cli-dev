@@ -7,7 +7,7 @@ async function getNpmInfo(npmName,registry) {
     if (!npmName) {
         return null
     }
-    return await axios.get(urlJoin("https://registry.taobao.npm.org",npmName)).then(res => {
+    return await axios.get(urlJoin("https://registry.npmjs.org",npmName)).then(res => {
         if (res.status === 200) {
             const versionList = Object.keys(res.data.versions);
             versionList.sort((a,b) => semver.gt(b,a) ? 1 : -1 )

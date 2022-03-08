@@ -1,9 +1,10 @@
 "use strict";
 const pkgDir = require("pkg-dir").sync;
 const npminstall = require("npminstall");
+const  pathExists= require("path-exists").sync;
 const path = require("path");
 const { isObject, formatPath } = require("@bc-cli/utils");
-const { log } = require("console");
+const getNpmInfo = require("@bc-cli/get-npm-info");
 class Package {
   constructor(options) {
     if (!options) {
@@ -22,24 +23,42 @@ class Package {
     this.packageVersion = options.packageVersion;
   }
 
+  //_bc-cli-l@1.0.0@bc-cli-l
+  //_bc-cli-l@1.0.0@bc-cli-l
+  //_bc-cli-l@1.0.0@_bc-cli-l
+
+
   //判断当前Package是否存在
-  exists() {}
+  async exists() {
+    if (this.storeDir) {
+      if (this.packageVersion === "latest") {
+        const versions = await getNpmInfo(this.packageName);
+        return pathExists(path.resolve(this.storeDir,`_${this.packageName.replace('/','_')}@${versions[0]}@${this.packageName}`))
+      }
+    } else {
+      return pathExists(this.targetPath);
+    }
+  }
 
   //安装Package
   async install() {
     await npminstall({
       root: this.targetPath,
       storeDir: this.storeDir,
-      registry: 'https://registry.npmjs.org',
-      pkgs: [{
-        name: this.packageName,
-        version: this.packageVersion,
-      }],
+      registry: "https://registry.npmjs.org",
+      pkgs: [
+        {
+          name: this.packageName,
+          version: this.packageVersion,
+        },
+      ],
     });
   }
 
   //更新Package
-  update() {}
+  update() {
+    console.log("11111111111");
+  }
 
   //获取入口文件路径
   getRootFilePath() {
