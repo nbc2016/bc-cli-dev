@@ -5,7 +5,7 @@ const log = require("npmlog")
 log.level = process.env.LOG_LEVEl ? process.env.LOG_LEVEl : "info"
 
 //前缀
-log.heading = "  🐶  "
+log.heading = "  李子🐶  "
 
 //前缀样式
 log.headingStyle = {fg:"brightYellow",bg:"green",bold:true}
