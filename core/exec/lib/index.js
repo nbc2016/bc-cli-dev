@@ -9,45 +9,52 @@ const SETTINGS = {
 };
 const CATCH_DIR = "dependencies";
 async function exec() {
-  //1.targetPath -> modulePath
-  //2.modulePath -> Package(npm模块)
-  //3.Package.getRootFile(获取入口文件)
-  //4.Package.update / Package.install'
-  let targetPath = process.env.CLI_TARGET_PATH;
-  const homePath = process.env.CLI_HOME_PATH;
-  let storeDir = "";
-  let pkg;
-  const cmdObj = arguments[arguments.length - 1];
-  const cmdName = cmdObj.name();
-  const packageName = SETTINGS[cmdName];
-  const packageVersion = "latest";
-  if (targetPath) {
-    pkg = new Package({
-      targetPath,
-      packageName,
-      packageVersion,
-    });
-    if (!pkg.exists()) {
-      return
+  try {
+    //1.targetPath -> modulePath
+    //2.modulePath -> Package(npm模块)
+    //3.Package.getRootFile(获取入口文件)
+    //4.Package.update / Package.install'
+    let targetPath = process.env.CLI_TARGET_PATH;
+    const homePath = process.env.CLI_HOME_PATH;
+    let storeDir = "";
+    let pkg;
+    const cmdObj = arguments[arguments.length - 1];
+    const cmdName = cmdObj.name();
+    const packageName = SETTINGS[cmdName];
+    const packageVersion = process.env.CLI_PACK_VERSION || "latest"
+
+    if (targetPath) {
+      pkg = new Package({
+        targetPath,
+        packageName,
+        packageVersion,
+      });
+    } else {
+      targetPath = path.resolve(homePath, CATCH_DIR);
+      storeDir = path.resolve(targetPath, "node_modules");
+      pkg = new Package({
+        targetPath,
+        storeDir,
+        packageName,
+        packageVersion,
+      });
+      if (await pkg.exists()) {
+        // pkg.update();
+      } else {
+        await pkg.install();
+      }
     }
     const rootFile = pkg.getRootFilePath();
     if (rootFile) {
-      require(rootFile)
+      require(rootFile);
+      log.info(packageName, "执行完毕");
+    } else {
+      throw new Error("找不到目标文件")
     }
-  } else {
-    targetPath = path.resolve(homePath, CATCH_DIR);
-    storeDir = path.resolve(targetPath, "node_modules");
-    pkg = new Package({
-      targetPath,
-      storeDir,
-      packageName,
-      packageVersion,
-    })
-    if (await pkg.exists()) {
-      pkg.update()
-    }else {
-      await pkg.install()
-      log.info(packageName,"下载完成")
+  } catch (error) {
+    log.error(error.message);
+    if (process.env.LOG_LEVEL === "verbose") {
+      console.log(error);
     }
   }
 }

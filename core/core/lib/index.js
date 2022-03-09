@@ -146,8 +146,12 @@ function initCommander() {
     .version(pkg.version);
 
   program.option("-d, --debug", "开启debug模式");
-  program.option("-tp, --targetPath <targetPath>", "是否指定本地调试文件路径", "")
-
+  program.option(
+    "-tp, --targetPath <targetPath>",
+    "是否指定本地调试文件路径",
+    ""
+  );
+  program.option("-pv, --packVersion <packVersion>", "是否指定安装版本号", "");
 
   program
     .command("init")
@@ -156,7 +160,6 @@ function initCommander() {
     .argument("[projectName]", "projectName")
     .option("-f, --force", false)
     .action(exec);
-
 
   program.on("option:debug", function () {
     const options = program.opts();
@@ -169,10 +172,13 @@ function initCommander() {
   });
 
   //on监听的只能是全局的option
-  program.on('option:targetPath',function(){
-    process.env.CLI_TARGET_PATH = program.opts().targetPath 
-  })
- 
+  program.on("option:targetPath", function () {
+    process.env.CLI_TARGET_PATH = program.opts().targetPath;
+  });
+
+  program.on("option:packVersion", function () {
+    process.env.CLI_PACK_VERSION = program.opts().packVersion;
+  });
 
   program.on("command:*", function (obj) {
     console.log("未知命令：" + obj[0]);

@@ -29,8 +29,9 @@
   "dependencies": {
     "@bc-cli/get-npm-info": "file:../../utils/get-npm-info",
     "@bc-cli/utils": "file:../../utils/utils",
+    "fs-extra": "^10.0.1",
     "npminstall": "^5.5.0",
-    "pkg-dir": "^5.0.0",
-    "path-exists": "^4.0.0"
+    "path-exists": "^4.0.0",
+    "pkg-dir": "^5.0.0"
   }
 }
