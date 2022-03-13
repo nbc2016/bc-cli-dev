@@ -18,7 +18,7 @@ async function core() {
     // checkPkgVersion()
 
     //检查node版本号
-    checkNodeVersion();
+    // checkNodeVersion();
 
     //root账号启动检查和自动降级功能
     checkRoot();
@@ -52,17 +52,18 @@ function checkPkgVersion() {
 }
 
 //检查node版本号（项目可能不支持低版本node）
-function checkNodeVersion() {
-  //当前node版本
-  const currentVersion = process.version;
-  //定义的最低node版本
-  const lowestVersion = constant.LOWEST_VERSION;
-  //semver比较版本号
-  if (!semver.gte(currentVersion, lowestVersion)) {
-    //colors颜色工具
-    throw new Error(colors.red(`bc-cli 需要安装 v${lowestVersion}及以上版本`));
-  }
-}
+
+// function checkNodeVersion() {
+//   //当前node版本
+//   const currentVersion = process.version;
+//   //定义的最低node版本
+//   const lowestVersion = constant.LOWEST_VERSION;
+//   //semver比较版本号
+//   if (!semver.gte(currentVersion, lowestVersion)) {
+//     //colors颜色工具
+//     throw new Error(colors.red(`bc-cli 需要安装 v${lowestVersion}及以上版本`));
+//   }
+// }
 
 //root账号启动检查和自动降级功能
 function checkRoot() {
@@ -87,6 +88,7 @@ function checkInputArgs() {
   args = minimist(process.argv.slice(2));
   checkArgs();
 }
+
 function checkArgs() {
   if (args.debug) {
     process.env.LOG_LEVEL = "verbose";
