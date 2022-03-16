@@ -1,9 +1,9 @@
 {
-  "name": "@bc-cli/init",
+  "name": "@bc-cli/request",
   "version": "1.0.6",
   "description": "> TODO: description",
   "author": "niubingchuan <niubingchuan@enn.cn>",
-  "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/commands/init#readme",
+  "homepage": "https://github.com/nbc2016/bc-cli-dev/tree/main/utils/request#readme",
   "license": "ISC",
   "main": "lib/index.js",
   "directories": {
@@ -27,11 +27,6 @@
     "url": "https://github.com/nbc2016/bc-cli-dev/issues"
   },
   "dependencies": {
-    "@bc-cli/command": "file:../../models/command",
-    "@bc-cli/log": "file:../../utils/log",
-    "@bc-cli/request": "file:../../utils/request",
-    "fs-extra": "^10.0.1",
-    "inquirer": "^8.2.1",
-    "semver": "^7.3.5"
+    "axios": "^0.26.1"
   }
 }

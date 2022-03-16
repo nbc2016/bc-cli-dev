@@ -6,7 +6,6 @@ const fsExtra = require("fs-extra");
 const path = require("path");
 const { isObject, formatPath } = require("@bc-cli/utils");
 const getNpmInfo = require("@bc-cli/get-npm-info");
-const { log } = require("console");
 class Package {
   constructor(options) {
     if (!options) {
