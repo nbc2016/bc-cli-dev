@@ -30,6 +30,8 @@
     "@bc-cli/command": "file:../../models/command",
     "@bc-cli/log": "file:../../utils/log",
     "@bc-cli/request": "file:../../utils/request",
+    "@bc-cli/package": "file:../../models/package",
+    "@bc-cli/utils": "file:../../utils/utils",
     "fs-extra": "^10.0.1",
     "inquirer": "^8.2.1",
     "semver": "^7.3.5"

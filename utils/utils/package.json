@@ -27,5 +27,8 @@
     "access": "public"
   },
   "gitHead": "a890f685c7dce9404fa77492c176675a011372e0",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "cli-spinner": "^0.2.10"
+  }
 }

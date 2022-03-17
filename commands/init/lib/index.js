@@ -1,21 +1,28 @@
 "use strict";
 const inquirer = require("inquirer");
 const fs = require("fs");
+const path = require("path");
 const fse = require("fs-extra");
+const userHome = require("fs-extra");
 const semver = require("semver");
 const Command = require("@bc-cli/command");
+const Package = require("@bc-cli/package");
 const log = require("@bc-cli/log");
+const {spinner} = require("@bc-cli/utils");
 const request = require("@bc-cli/request");
 
 class initCommand extends Command {
   init() {
     this.projectName = this._argv[0] || "";
     this.force = !!this._argv[1].force;
+    this.info = null;
   }
   async exec() {
     try {
-      const info = await this.prepare();
-      log.verbose("info", JSON.stringify(info || {}));
+      this.info = await this.prepare();
+      if (!this.info) return
+      log.verbose("info", JSON.stringify(this.info || {}));
+      await this.downloadTemplate();
     } catch (error) {
       console.log(error);
       log.error(error);
@@ -23,7 +30,9 @@ class initCommand extends Command {
   }
   async prepare() {
     const { data } = await request.get("/project/template");
-    console.log(data);
+    if (!(data && data.length)) {
+      throw new Error("获取模版失败");
+    }
     //1.判断当前目录是否为空
     const localPath = process.cwd();
     let ifContinue = false;
@@ -50,11 +59,14 @@ class initCommand extends Command {
       });
       if (confirmDelete) {
         fse.emptyDirSync(localPath);
+      }else {
+        return null
       }
     }
     //3.获取创建项目或者组件以及信息
-    return this.getProjectInfo();
+    return this.getProjectInfo(data);
   }
+
   isCwdEmpty(localPath) {
     let fileList = fs.readdirSync(localPath);
     fileList = fileList.filter(
@@ -63,7 +75,7 @@ class initCommand extends Command {
     return !fileList || fileList.length === 0;
   }
 
-  async getProjectInfo() {
+  async getProjectInfo(data) {
     const info = await inquirer.prompt([
       {
         type: "list",
@@ -110,8 +122,38 @@ class initCommand extends Command {
           }, 500);
         },
       },
+      {
+        type: "list",
+        name: "template",
+        message: "请选择项目模版",
+        choices: data.map((project) => ({
+          name: project.name,
+          value: { name: project.value, version: project.version },
+        })),
+      },
     ]);
     return info;
+  }
+  async downloadTemplate() {
+    const targetPath = path.resolve(process.env.CLI_HOME_PATH, "template");
+    const storeDir = path.resolve(targetPath, "node_modules");
+    const packageName = this.info.template.name;
+    const packageVersion = this.info.template.version;
+    const pkg  = new Package({
+      targetPath,
+      storeDir,
+      packageName,
+      packageVersion
+    })
+    if ( await pkg.exists()) {
+      log.verbose("模板已存在");
+    }else {
+      const spinnerProgram = spinner("正在下载模版")
+      await new Promise(res => setTimeout(()=> { res()},1000))
+      await pkg.install()
+      spinnerProgram.stop()
+      log.verbose("下载完成")
+    }
   }
 }
 function init(argv) {
