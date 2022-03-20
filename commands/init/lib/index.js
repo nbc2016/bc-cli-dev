@@ -3,13 +3,16 @@ const inquirer = require("inquirer");
 const fs = require("fs");
 const path = require("path");
 const fse = require("fs-extra");
-const userHome = require("fs-extra");
 const semver = require("semver");
+const glob = require("glob");
+const ejs = require("ejs");
 const Command = require("@bc-cli/command");
 const Package = require("@bc-cli/package");
 const log = require("@bc-cli/log");
-const {spinner} = require("@bc-cli/utils");
+const { spinner, spawnAsync } = require("@bc-cli/utils");
 const request = require("@bc-cli/request");
+
+const WHITE_COMMAND = ["npm", "cnpm", "yarn"];
 
 class initCommand extends Command {
   init() {
@@ -20,7 +23,7 @@ class initCommand extends Command {
   async exec() {
     try {
       this.info = await this.prepare();
-      if (!this.info) return
+      if (!this.info) return;
       log.verbose("info", JSON.stringify(this.info || {}));
       await this.downloadTemplate();
     } catch (error) {
@@ -42,7 +45,7 @@ class initCommand extends Command {
           type: "confirm",
           name: "ifContinue",
           default: false,
-          message: "当亲文件夹不为空，是否继续创建项目",
+          message: "当前文件夹不为空，是否继续创建项目",
         })
       ).ifContinue;
       if (!ifContinue) {
@@ -59,8 +62,8 @@ class initCommand extends Command {
       });
       if (confirmDelete) {
         fse.emptyDirSync(localPath);
-      }else {
-        return null
+      } else {
+        return null;
       }
     }
     //3.获取创建项目或者组件以及信息
@@ -76,7 +79,12 @@ class initCommand extends Command {
   }
 
   async getProjectInfo(data) {
-    const info = await inquirer.prompt([
+    function validate(name) {
+      return /^[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(
+        name
+      );
+    }
+    const prompts = [
       {
         type: "list",
         name: "type",
@@ -94,11 +102,7 @@ class initCommand extends Command {
         validate(v) {
           const done = this.async();
           setTimeout(function () {
-            if (
-              !/^[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(
-                v
-              )
-            ) {
+            if (!validate(v)) {
               done("请输入合法名字");
               return;
             }
@@ -128,32 +132,159 @@ class initCommand extends Command {
         message: "请选择项目模版",
         choices: data.map((project) => ({
           name: project.name,
-          value: { name: project.value, version: project.version },
+          value: {
+            name: project.value,
+            versions: project.versions,
+            type: project.type,
+            installCommand: project.installCommand,
+            startCommand: project.startCommand,
+          },
         })),
       },
-    ]);
-    return info;
+    ];
+    let projectInfo = {}
+    if (validate(this.projectName)) {
+      prompts.splice(1, 1);
+      projectInfo.name = this.projectName
+    }
+    const info = await inquirer.prompt(prompts);
+
+    const { version } = await inquirer.prompt({
+      type: "list",
+      name: "version",
+      message: "请选择项目模版版本",
+      choices: info.template.versions.map((version) => ({
+        value: version,
+        name: version,
+      })),
+    });
+    info.template.version = version;
+    projectInfo = {
+      ...info,
+      ...projectInfo
+    }
+    return projectInfo;
   }
   async downloadTemplate() {
     const targetPath = path.resolve(process.env.CLI_HOME_PATH, "template");
     const storeDir = path.resolve(targetPath, "node_modules");
     const packageName = this.info.template.name;
     const packageVersion = this.info.template.version;
-    const pkg  = new Package({
+    const pkg = new Package({
       targetPath,
       storeDir,
       packageName,
-      packageVersion
-    })
-    if ( await pkg.exists()) {
+      packageVersion,
+    });
+    if (await pkg.exists()) {
+      const spinnerProgram = spinner("正在获取模版");
+      await new Promise((res) =>
+        setTimeout(() => {
+          res();
+        }, 1000)
+      );
+      spinnerProgram.stop(true);
       log.verbose("模板已存在");
-    }else {
-      const spinnerProgram = spinner("正在下载模版")
-      await new Promise(res => setTimeout(()=> { res()},1000))
-      await pkg.install()
-      spinnerProgram.stop()
-      log.verbose("下载完成")
+    } else {
+      const spinnerProgram = spinner("正在下载模版");
+      await new Promise((res) =>
+        setTimeout(() => {
+          res();
+        }, 1000)
+      );
+      await pkg.install();
+      spinnerProgram.stop(true);
+      log.verbose("下载完成");
     }
+    const { template = {} } = this.info;
+    if (!template.type) {
+      template.type = "normal";
+    }
+    if (template.type === "normal") {
+      await this.installNormalTemplate(
+        path.resolve(pkg.storeDir, pkg.realPath, "template")
+      );
+    } else if (template.type === "custom") {
+      await this.installCustomTemplate();
+    } else {
+      throw new Error("未知的模版类型！");
+    }
+  }
+  async ejsRender(ignore) {
+    const dir = process.cwd();
+    //不输出文件夹，只输出文件nodir: true
+    return new Promise((resolve, reject) => {
+      glob("**", { ignore: ignore, cwd: dir, nodir: true }, (err, files) => {
+        if (err) {
+          reject(err);
+        } else {
+          Promise.all(
+            files.map((file) => {
+              return new Promise((res, rej) => {
+                ejs
+                  .renderFile(
+                    path.resolve(dir, file),
+                    { className: this.info.name, version: this.info.version },
+                    {}
+                  )
+                  .then((result) => {
+                    fse.writeFileSync(path.resolve(dir, file), result);
+                    res(result);
+                  })
+                  .catch((err) => {
+                    rej(err);
+                  });
+              });
+            })
+          )
+            .then((res) => {
+              resolve(res);
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        }
+      });
+    });
+  }
+  async execCommand(command, msg) {
+    let res;
+    const cmdList = command.split(" ");
+    const cmd = WHITE_COMMAND.includes(cmdList[0]) ? cmdList[0] : null;
+    const args = cmdList.slice(1);
+    if (cmd) {
+      res = await spawnAsync(cmd, args, {
+        stdio: "inherit",
+        cwd: process.cwd(),
+      });
+    } else {
+      throw new Error(`未知的命令 : ${cmd}`);
+    }
+    if (res !== 0) {
+      throw new Error(msg);
+    }
+  }
+  async installNormalTemplate(storeRealPath) {
+    const spinnerProgram = spinner("正在下载模版");
+    const cwdPath = process.cwd();
+    fse.ensureDirSync(storeRealPath);
+    fse.ensureDirSync(cwdPath);
+    fse.copySync(storeRealPath, cwdPath);
+    await new Promise((res) =>
+      setTimeout(() => {
+        res();
+      }, 1000)
+    );
+    spinnerProgram.stop(true);
+    await this.ejsRender(["public/**", "node_modules/**"]);
+    log.info("bc-cli", "安装完毕");
+    const { template = {} } = this.info;
+    const { installCommand, startCommand } = template;
+    await this.execCommand(installCommand, "安装失败");
+    await this.execCommand(startCommand, "执行失败");
+  }
+  async installCustomTemplate() {
+    console.log("installCustomTemplate");
   }
 }
 function init(argv) {

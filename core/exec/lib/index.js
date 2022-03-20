@@ -1,9 +1,10 @@
 "use strict";
-const cp = require("child_process");
+// const cp = require("child_process");
 const path = require("path");
-
 const Package = require("@bc-cli/package");
 const log = require("@bc-cli/log");
+const {spawnAsync} = require("@bc-cli/utils");
+
 const SETTINGS = {
   init: "bc-cli-l",
 };
@@ -45,30 +46,29 @@ async function exec() {
       }
     }
     const rootFile = pkg.getRootFilePath();
-    function spawn(command, arg, options) {
-      let args = []
-      if (process.platform === "win32") {
-        command = "cmd"
-        args.push(command)
-      }
-      args = args.concat(arg)
-      const child = cp.spawn(command, args, options || {});
-      child.on("error", (err) => {
-        log.error("spwan", err);
-        process.exit(1);
-      });
-      child.on("exit", (e) => {
-        log.info(packageName, "执行完毕");
-        process.exit(e); 
-      });
-    }
+    // function spawn(command, arg, options) {
+    //   let args = []
+    //   if (process.platform === "win32") {
+    //     command = "cmd"
+    //     args.push(command)
+    //   }
+    //   args = args.concat(arg)
+    //   const child = cp.spawn(command, args, options || {});
+    //   child.on("error", (err) => {
+    //     log.error("spwan", err);
+    //     process.exit(1);
+    //   });
+    //   child.on("exit", (e) => {
+    //     process.exit(e); 
+    //   });
+    // }
     if (rootFile) {
       // cp.spawn("node",["-e","scpipt"],{}) mac
       // cp.spawn("cmd",["node","-e","scpipt"],{}) win
       
       const code = `require('${rootFile}').call(null, ${JSON.stringify(Array.from(arguments).slice(0,2))})`;
  
-      spawn("node", ["-e", code], { stdio: "inherit" });
+      await spawnAsync("node", ["-e", code], { stdio: "inherit",cwd: process.cwd() });
   
       // require(rootFile).call(null,Array.from(arguments).slice(0,2))
       

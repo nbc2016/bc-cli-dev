@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@bc-cli/package": "file:../../models/package",
-    "@bc-cli/log": "file:../../utils/log"
+    "@bc-cli/log": "file:../../utils/log",
+    "@bc-cli/utils": "file:../../utils/utils"
   }
 }
