@@ -31,8 +31,7 @@ function spawnAsync(command, arg, options) {
     args = args.concat(arg);
     const child = cp.spawn(command, args, options || {});
     child.on("error", (err) => {
-      log.error("spwan", err);
-      reject(1);
+      reject(err);
       process.exit(1);
     });
     child.on("exit", (e) => {

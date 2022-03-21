@@ -142,10 +142,10 @@ class initCommand extends Command {
         })),
       },
     ];
-    let projectInfo = {}
+    let projectInfo = {};
     if (validate(this.projectName)) {
       prompts.splice(1, 1);
-      projectInfo.name = this.projectName
+      projectInfo.name = this.projectName;
     }
     const info = await inquirer.prompt(prompts);
 
@@ -161,8 +161,8 @@ class initCommand extends Command {
     info.template.version = version;
     projectInfo = {
       ...info,
-      ...projectInfo
-    }
+      ...projectInfo,
+    };
     return projectInfo;
   }
   async downloadTemplate() {
@@ -205,7 +205,7 @@ class initCommand extends Command {
         path.resolve(pkg.storeDir, pkg.realPath, "template")
       );
     } else if (template.type === "custom") {
-      await this.installCustomTemplate();
+      await this.installCustomTemplate(path.resolve(pkg.storeDir, pkg.realPath, "template"),pkg);
     } else {
       throw new Error("未知的模版类型！");
     }
@@ -283,8 +283,32 @@ class initCommand extends Command {
     await this.execCommand(installCommand, "安装失败");
     await this.execCommand(startCommand, "执行失败");
   }
-  async installCustomTemplate() {
-    console.log("installCustomTemplate");
+  async installCustomTemplate(storeRealPath,pkg) {
+    const spinnerProgram = spinner("正在下载模版");
+    const cwdPath = process.cwd();
+    fse.ensureDirSync(storeRealPath);
+    fse.ensureDirSync(cwdPath);
+    fse.copySync(storeRealPath, cwdPath);
+    await new Promise((res) =>
+      setTimeout(() => {
+        res();
+      }, 1000)
+    );
+    spinnerProgram.stop(true);
+    const rootFilePath = pkg.getRootFilePath()
+    if (fs.existsSync(rootFilePath)) {
+      const code = `require('${rootFilePath}')(${JSON.stringify(this.info)})`
+      await spawnAsync("node", ["-e",code], {
+        stdio: "inherit",
+        cwd: process.cwd(),
+      });
+    }else {
+      throw new Error("未找到执行文件")
+    }
+    const { template = {} } = this.info;
+    const { installCommand, startCommand } = template;
+    await this.execCommand(installCommand, "安装失败");
+    await this.execCommand(startCommand, "执行失败");
   }
 }
 function init(argv) {
